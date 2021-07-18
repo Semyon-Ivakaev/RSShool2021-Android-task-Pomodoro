@@ -16,6 +16,17 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:listitem="@layout/stopwatch_item" />
 
+    <TextView
+        android:id="@+id/time_picker"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="24sp"
+        app:layout_constraintBaseline_toBaselineOf="@id/add_new_stopwatch_button"
+        android:hint="@string/choose_period"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/add_new_stopwatch_button"
+        app:layout_constraintStart_toStartOf="parent" />
+
     <Button
         android:id="@+id/add_new_stopwatch_button"
         android:layout_width="wrap_content"
@@ -24,6 +35,6 @@
         android:text="@string/add_stopwatch"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toEndOf="@id/time_picker" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

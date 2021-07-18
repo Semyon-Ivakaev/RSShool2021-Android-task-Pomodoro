@@ -1,12 +1,15 @@
 package com.example.rsshool2021_android_task_pomodoro
 
+import android.app.TimePickerDialog
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.rsshool2021_android_task_pomodoro.databinding.ActivityMainBinding
 import com.example.rsshool2021_android_task_pomodoro.stopwatch.Stopwatch
 import com.example.rsshool2021_android_task_pomodoro.stopwatch.StopwatchAdapter
 import com.example.rsshool2021_android_task_pomodoro.stopwatch.utils.StopwatchListener
+import java.util.*
 
 class MainActivity : AppCompatActivity(), StopwatchListener {
 
@@ -25,6 +28,21 @@ class MainActivity : AppCompatActivity(), StopwatchListener {
         binding.recycler.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = stopwatchAdapter
+        }
+
+        binding.timePicker.setOnClickListener {
+            val c = Calendar.getInstance()
+            val hour = c.get(Calendar.HOUR)
+            val minute = c.get(Calendar.MINUTE)
+
+            val timePickerDialog = TimePickerDialog(this,TimePickerDialog.OnTimeSetListener(function = { view, h, m ->
+
+                Toast.makeText(this, h.toString() + " : " + m +" : " , Toast.LENGTH_LONG).show()
+                binding.timePicker.text = h.toString() + " : " + m
+
+            }),hour,minute,true)
+
+            timePickerDialog.show()
         }
 
         binding.addNewStopwatchButton.setOnClickListener {

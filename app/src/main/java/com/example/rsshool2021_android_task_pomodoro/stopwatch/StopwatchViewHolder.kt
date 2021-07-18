@@ -19,7 +19,7 @@ class StopwatchViewHolder(
 
     fun bind(stopwatch: Stopwatch) {
         binding.stopwatchTimer.text = stopwatch.currentMs.displayTime()
-
+        binding.customView.setPeriod(PERIOD)
         if (stopwatch.isStarted) {
             startTimer(stopwatch)
         } else {
@@ -87,9 +87,9 @@ class StopwatchViewHolder(
         val h = this / 1000 / 3600
         val m = this / 1000 % 3600 / 60
         val s = this / 1000 % 60
-        val ms = this % 1000 / 10
+//        val ms = this % 1000 / 10
 
-        return "${displaySlot(h)}:${displaySlot(m)}:${displaySlot(s)}:${displaySlot(ms)}"
+        return "${displaySlot(h)}:${displaySlot(m)}:${displaySlot(s)}}" //:${displaySlot(ms)
     }
 
     private fun displaySlot(count: Long): String {
@@ -105,5 +105,10 @@ class StopwatchViewHolder(
         private const val START_TIME = "00:00:00:00"
         private const val UNIT_TEN_MS = 10L
         private const val PERIOD = 1000L * 60L * 60L * 24L // Day
+
+        private const val INTERVAL = 100L
+//        private const val PERIOD = 1000L * 30 // 30 sec
+        private const val REPEAT = 10 // 10 times
+
     }
 }
