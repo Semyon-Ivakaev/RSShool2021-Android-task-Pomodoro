@@ -10,7 +10,6 @@ import com.example.rsshool2021_android_task_pomodoro.stopwatch.Stopwatch
 import com.example.rsshool2021_android_task_pomodoro.stopwatch.StopwatchAdapter
 import com.example.rsshool2021_android_task_pomodoro.stopwatch.utils.StopwatchListener
 import java.util.*
-import kotlin.time.milliseconds
 
 class MainActivity : AppCompatActivity(), StopwatchListener {
 
@@ -37,9 +36,7 @@ class MainActivity : AppCompatActivity(), StopwatchListener {
             val minute = c.get(Calendar.MINUTE)
             val timePickerDialog =
                 TimePickerDialog(this, { _, h, m ->
-                    Toast.makeText(this, "$h : $m", Toast.LENGTH_LONG).show()
-//                    binding.timePicker.text = "$h : $m"
-                    binding.timePicker.text = resources.getString(R.string.time,h,m)
+                    binding.timePicker.text = resources.getString(R.string.time, h, m)
                 }, hour, minute, true)
 
             timePickerDialog.show()
@@ -47,8 +44,11 @@ class MainActivity : AppCompatActivity(), StopwatchListener {
 
         binding.addNewStopwatchButton.setOnClickListener {
             if (binding.timePicker.text.isNotEmpty()) {
-
-                stopwatches.add(Stopwatch(nextId++, 0, 0, false))
+                val time = binding.timePicker.text.trim()
+                val h = time.subSequence(0, time.indexOf(":")).toString()
+                val m = time.subSequence(time.indexOf(":") + 1, time.length).toString()
+                val mills = (h.toInt() * 60L + m.toInt()) * 60L * 1000L
+                stopwatches.add(Stopwatch(nextId++, mills, mills, false))
                 stopwatchAdapter.submitList(stopwatches.toList())
             } else Toast.makeText(this, "Choose timer period", Toast.LENGTH_LONG).show()
         }
@@ -75,7 +75,14 @@ class MainActivity : AppCompatActivity(), StopwatchListener {
         val newTimers = mutableListOf<Stopwatch>()
         stopwatches.forEach {
             if (it.id == id) {
-                newTimers.add(Stopwatch(it.id, 0, currentMs ?: it.currentMs, isStarted))
+                newTimers.add(
+                    Stopwatch(
+                        it.id,
+                        it.startPeriod,
+                        currentMs ?: it.currentMs,
+                        isStarted
+                    )
+                )
             } else {
                 newTimers.add(it)
             }

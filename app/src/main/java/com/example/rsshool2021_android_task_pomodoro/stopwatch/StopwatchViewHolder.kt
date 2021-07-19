@@ -70,7 +70,8 @@ class StopwatchViewHolder(
             val interval = UNIT_TEN_MS
 
             override fun onTick(millisUntilFinished: Long) {
-                stopwatch.currentMs += interval
+                stopwatch.currentMs -= interval
+                binding.customView.setCurrent(stopwatch.startPeriod - stopwatch.currentMs)
                 binding.stopwatchTimer.text = stopwatch.currentMs.displayTime()
             }
 
@@ -87,9 +88,9 @@ class StopwatchViewHolder(
         val h = this / 1000 / 3600
         val m = this / 1000 % 3600 / 60
         val s = this / 1000 % 60
-//        val ms = this % 1000 / 10
+        val ms = this % 1000 / 10
 
-        return "${displaySlot(h)}:${displaySlot(m)}:${displaySlot(s)}" //:${displaySlot(ms)}
+        return "${displaySlot(h)}:${displaySlot(m)}:${displaySlot(s)}:${displaySlot(ms)}"
     }
 
     private fun displaySlot(count: Long): String {
@@ -102,7 +103,7 @@ class StopwatchViewHolder(
 
     private companion object {
 
-        private const val START_TIME = "00:00:00"
+        private const val START_TIME = "00:00:00:00"
         private const val UNIT_TEN_MS = 10L
         private const val PERIOD = 1000L * 60L * 60L * 24L // Day
 
