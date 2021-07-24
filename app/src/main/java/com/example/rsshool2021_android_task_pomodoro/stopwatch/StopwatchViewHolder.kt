@@ -1,7 +1,9 @@
 package com.example.rsshool2021_android_task_pomodoro.stopwatch
 
 import android.content.res.Resources
+import android.graphics.Color
 import android.graphics.drawable.AnimationDrawable
+import android.os.Build
 import android.os.CountDownTimer
 import androidx.core.view.isInvisible
 import androidx.recyclerview.widget.RecyclerView
@@ -12,104 +14,85 @@ import com.example.rsshool2021_android_task_pomodoro.stopwatch.utils.StopwatchLi
 class StopwatchViewHolder(
     private val binding: StopwatchItemBinding,
     private val listener: StopwatchListener,
-    private val resources: Resources
 ) : RecyclerView.ViewHolder(binding.root) {
 
-    private var timer: CountDownTimer? = null
+    private var timer: Stopwatch? = null
 
     fun bind(stopwatch: Stopwatch) {
-        binding.stopwatchTimer.text = stopwatch.currentMs.displayTime()
-        binding.customView.setPeriod(PERIOD)
-        if (stopwatch.isStarted) {
-            startTimer(stopwatch)
-        } else {
-            stopTimer(stopwatch)
+
+        if (timer != stopwatch) {
+            timer?.tickCallback = null
+            timer?.stateCallback = null
+            timer = stopwatch
+
+            stopwatch.tickCallback = {
+                setTimerText(stopwatch)
+                setTimerProgress(stopwatch)
+            }
+            stopwatch.stateCallback = {
+                setTimerState(stopwatch)
+            }
         }
+
+        binding.customView.setPeriod(stopwatch.startPeriod)
+        binding.customView.setCurrent(stopwatch.progress)
+
+        setTimerState(stopwatch)
 
         initButtonsListeners(stopwatch)
     }
 
     private fun initButtonsListeners(stopwatch: Stopwatch) {
-        binding.startPauseButton.setOnClickListener {
-            if (stopwatch.isStarted) {
-                listener.stop(stopwatch.id, stopwatch.currentMs)
-            } else {
-                listener.start(stopwatch.id)
+            binding.startPauseButton.setOnClickListener {
+                if (stopwatch.isStarted) {
+                    stopwatch.stop()
+                } else {
+                    stopwatch.start()
+                }
+                listener.replace(stopwatch)
+            }
+
+            binding.restartButton.setOnClickListener {
+                stopwatch.reset()
+                listener.replace(stopwatch)
+            }
+
+            binding.deleteButton.setOnClickListener {
+                listener.delete(stopwatch)
             }
         }
 
-        binding.restartButton.setOnClickListener { listener.reset(stopwatch.id) }
-
-        binding.deleteButton.setOnClickListener { listener.delete(stopwatch.id) }
-    }
-
-    private fun startTimer(stopwatch: Stopwatch) {
-        val drawable = resources.getDrawable(R.drawable.ic_baseline_pause_24)
-        binding.startPauseButton.setImageDrawable(drawable)
-
-        timer?.cancel()
-        timer = getCountDownTimer(stopwatch)
-        timer?.start()
-
-        binding.blinkingIndicator.isInvisible = false
-        (binding.blinkingIndicator.background as? AnimationDrawable)?.start()
-    }
-
-    private fun stopTimer(stopwatch: Stopwatch) {
-        val drawable = resources.getDrawable(R.drawable.ic_baseline_play_arrow_24)
-        binding.startPauseButton.setImageDrawable(drawable)
-
-        timer?.cancel()
-
-        binding.blinkingIndicator.isInvisible = true
-        (binding.blinkingIndicator.background as? AnimationDrawable)?.stop()
-    }
-
-    private fun getCountDownTimer(stopwatch: Stopwatch): CountDownTimer {
-        return object : CountDownTimer(PERIOD, UNIT_TEN_MS) {
-            val interval = UNIT_TEN_MS
-
-            override fun onTick(millisUntilFinished: Long) {
-                stopwatch.currentMs -= interval
-                binding.customView.setCurrent(stopwatch.startPeriod - stopwatch.currentMs)
-                binding.stopwatchTimer.text = stopwatch.currentMs.displayTime()
-            }
-
-            override fun onFinish() {
-                binding.stopwatchTimer.text = stopwatch.currentMs.displayTime()
-            }
-        }
-    }
-
-    private fun Long.displayTime(): String {
-        if (this <= 0L) {
-            return START_TIME
-        }
-        val h = this / 1000 / 3600
-        val m = this / 1000 % 3600 / 60
-        val s = this / 1000 % 60
-        val ms = this % 1000 / 10
-
-        return "${displaySlot(h)}:${displaySlot(m)}:${displaySlot(s)}:${displaySlot(ms)}"
-    }
-
-    private fun displaySlot(count: Long): String {
-        return if (count / 10L > 0) {
-            "$count"
+    private fun setTimerState(stopwatch: Stopwatch) {
+        if (timer?.isStarted == true) {
+            binding.startPauseButton.setImageResource(R.drawable.ic_baseline_pause_24)
+            (binding.blinkingIndicator.background as? AnimationDrawable)?.start()
+            binding.blinkingIndicator.isInvisible = false
         } else {
-            "0$count"
+            binding.startPauseButton.setImageResource(R.drawable.ic_baseline_play_arrow_24)
+            binding.blinkingIndicator.isInvisible = true
+            (binding.blinkingIndicator.background as? AnimationDrawable)?.stop()
+        }
+
+        setTimerText(stopwatch)
+        setTimerProgress(stopwatch)
+
+        if (timer?.progress == 0L) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                itemView.setBackgroundColor(itemView.resources.getColor(R.color.red, null))
+                binding.startPauseButton.setBackgroundColor(itemView.resources.getColor(R.color.red, null))
+                binding.restartButton.setBackgroundColor(itemView.resources.getColor(R.color.red, null))
+                binding.deleteButton.setBackgroundColor(itemView.resources.getColor(R.color.red, null))
+            }
+        } else {
+            itemView.setBackgroundColor(Color.WHITE)
         }
     }
 
-    private companion object {
+    private fun setTimerText(stopwatch: Stopwatch) {
+        binding.stopwatchTimer.text = stopwatch.text
+    }
 
-        private const val START_TIME = "00:00:00:00"
-        private const val UNIT_TEN_MS = 10L
-        private const val PERIOD = 1000L * 60L * 60L * 24L // Day
-
-        private const val INTERVAL = 100L
-//        private const val PERIOD = 1000L * 30 // 30 sec
-        private const val REPEAT = 10 // 10 times
-
+    private fun setTimerProgress(stopwatch: Stopwatch) {
+        binding.customView.setCurrent(stopwatch.progress)
     }
 }

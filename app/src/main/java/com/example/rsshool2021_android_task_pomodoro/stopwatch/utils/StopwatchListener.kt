@@ -1,12 +1,8 @@
 package com.example.rsshool2021_android_task_pomodoro.stopwatch.utils
 
+import com.example.rsshool2021_android_task_pomodoro.stopwatch.Stopwatch
+
 interface StopwatchListener {
-
-    fun start(id: Int)
-
-    fun stop(id: Int, currentMs: Long)
-
-    fun reset(id: Int)
-
-    fun delete(id: Int)
+    fun replace(stopwatch: Stopwatch)
+    fun delete(stopwatch: Stopwatch)
 }
